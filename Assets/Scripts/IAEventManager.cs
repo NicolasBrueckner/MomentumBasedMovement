@@ -1,28 +1,21 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class IAEventManager : MonoBehaviour
 {
-	public static IAEventManager Instance {get; private set;}
-	
 	private PlayerIA _input;
-	
-	private InputAction _moveAction;
 	private InputAction _lookAction;
-	
-	public event Action<InputAction.CallbackContext> MovePerformed;
-	public event Action<InputAction.CallbackContext> MoveCanceled;
-	public event Action<InputAction.CallbackContext> LookPerformed;
+
+	private InputAction _moveAction;
+	public static IAEventManager Instance{ get; private set; }
 
 	private void Awake()
 	{
 		Instance = Utility.CreateSingleton( Instance, gameObject );
-		
+
 		_input = new();
-		
+
 		SetActions();
 		BindActions();
 		EnableAllActions();
@@ -33,8 +26,14 @@ public class IAEventManager : MonoBehaviour
 		DisableAllActions();
 		UnbindActions();
 	}
-	
+
+	public event Action<InputAction.CallbackContext> MovePerformed;
+	public event Action<InputAction.CallbackContext> MoveCanceled;
+	public event Action<InputAction.CallbackContext> LookPerformed;
+	public event Action<InputAction.CallbackContext> LookCanceled;
+
 	#region Action Setup
+
 	private void SetActions()
 	{
 		_moveAction = _input.Player.Move;
@@ -46,6 +45,7 @@ public class IAEventManager : MonoBehaviour
 		_moveAction.performed += OnMovePerformed;
 		_moveAction.canceled += OnMoveCanceled;
 		_lookAction.performed += OnLookPerformed;
+		_lookAction.canceled += OnLookCanceled;
 	}
 
 	private void UnbindActions()
@@ -53,6 +53,7 @@ public class IAEventManager : MonoBehaviour
 		_moveAction.performed -= OnMovePerformed;
 		_moveAction.canceled -= OnMoveCanceled;
 		_lookAction.performed -= OnLookPerformed;
+		_lookAction.canceled -= OnLookCanceled;
 	}
 
 	private void EnableAllActions()
@@ -66,24 +67,31 @@ public class IAEventManager : MonoBehaviour
 		_moveAction.Disable();
 		_lookAction.Disable();
 	}
+
 	#endregion
-	
+
 	#region Event Methods
 
 	private void OnMovePerformed( InputAction.CallbackContext ctx )
 	{
-		MovePerformed?.Invoke(ctx);
+		MovePerformed?.Invoke( ctx );
 	}
 
 	private void OnMoveCanceled( InputAction.CallbackContext ctx )
 	{
-		MoveCanceled?.Invoke(ctx);
+		MoveCanceled?.Invoke( ctx );
 	}
 
 	private void OnLookPerformed( InputAction.CallbackContext ctx )
 	{
-		LookPerformed?.Invoke(ctx);
+		LookPerformed?.Invoke( ctx );
 	}
+
+	private void OnLookCanceled( InputAction.CallbackContext ctx )
+	{
+		LookCanceled?.Invoke( ctx );
+	}
+
 	#endregion
 
 	/*private void Update()
