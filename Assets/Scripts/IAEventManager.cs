@@ -8,12 +8,15 @@ using UnityEngine.InputSystem;
 
 public class IAEventManager : MonoBehaviour
 {
-	private PlayerIA _input;
+	public static IAEventManager Instance{ get; private set; }
 
+	private PlayerIA _input;
 	private InputAction _moveAction;
 	private InputAction _lookAction;
 	private InputAction _aimAction;
 	private InputAction _shootAction;
+	private InputAction _jumpAction;
+	private InputAction _sprintAction;
 
 	public event Action<InputAction.CallbackContext> MovePerformed;
 	public event Action<InputAction.CallbackContext> MoveCanceled;
@@ -21,10 +24,12 @@ public class IAEventManager : MonoBehaviour
 	public event Action<InputAction.CallbackContext> LookCanceled;
 	public event Action<InputAction.CallbackContext> AimPerformed;
 	public event Action<InputAction.CallbackContext> AimCanceled;
-	public event Action<InputAction.CallbackContext> ShootPerformed;
-	public event Action<InputAction.CallbackContext> ShootCanceled;
-
-	public static IAEventManager Instance{ get; private set; }
+	public event Action ShootPerformed;
+	public event Action ShootCanceled;
+	public event Action JumpPerformed;
+	public event Action JumpCanceled;
+	public event Action SprintPerformed;
+	public event Action SprintCanceled;
 
 	private void Awake()
 	{
@@ -51,6 +56,8 @@ public class IAEventManager : MonoBehaviour
 		_lookAction = _input.Player.Look;
 		_aimAction = _input.Player.Aim;
 		_shootAction = _input.Player.Shoot;
+		_jumpAction = _input.Player.Jump;
+		_sprintAction = _input.Player.Sprint;
 	}
 
 	private void BindActions()
@@ -63,6 +70,10 @@ public class IAEventManager : MonoBehaviour
 		_aimAction.canceled += OnAimCanceled;
 		_shootAction.performed += OnShootPerformed;
 		_shootAction.canceled += OnShootCanceled;
+		_jumpAction.performed += OnJumpPerformed;
+		_jumpAction.canceled += OnJumpCanceled;
+		_sprintAction.performed += OnSprintPerformed;
+		_sprintAction.canceled += OnSprintCanceled;
 	}
 
 	private void UnbindActions()
@@ -75,6 +86,10 @@ public class IAEventManager : MonoBehaviour
 		_aimAction.canceled -= OnAimCanceled;
 		_shootAction.performed -= OnShootPerformed;
 		_shootAction.canceled -= OnShootCanceled;
+		_jumpAction.performed -= OnJumpPerformed;
+		_jumpAction.canceled -= OnJumpCanceled;
+		_sprintAction.performed -= OnSprintPerformed;
+		_sprintAction.canceled -= OnSprintCanceled;
 	}
 
 	private void EnableAllActions()
@@ -83,6 +98,8 @@ public class IAEventManager : MonoBehaviour
 		_lookAction.Enable();
 		_aimAction.Enable();
 		_shootAction.Enable();
+		_jumpAction.Enable();
+		_sprintAction.Enable();
 	}
 
 	private void DisableAllActions()
@@ -91,27 +108,26 @@ public class IAEventManager : MonoBehaviour
 		_lookAction.Disable();
 		_aimAction.Disable();
 		_shootAction.Disable();
+		_jumpAction.Disable();
+		_sprintAction.Disable();
 	}
 
 	#endregion
 
 	#region Event Methods
 
-	private void OnMovePerformed( InputAction.CallbackContext ctx )  => MovePerformed?.Invoke( ctx );
-	private void OnMoveCanceled( InputAction.CallbackContext ctx )   => MoveCanceled?.Invoke( ctx );
-	private void OnLookPerformed( InputAction.CallbackContext ctx )  => LookPerformed?.Invoke( ctx );
-	private void OnLookCanceled( InputAction.CallbackContext ctx )   => LookCanceled?.Invoke( ctx );
-	private void OnAimPerformed( InputAction.CallbackContext ctx )   => AimPerformed?.Invoke( ctx );
-	private void OnAimCanceled( InputAction.CallbackContext ctx )    => AimCanceled?.Invoke( ctx );
-	private void OnShootPerformed( InputAction.CallbackContext ctx ) => ShootPerformed?.Invoke( ctx );
-	private void OnShootCanceled( InputAction.CallbackContext ctx )  => ShootCanceled?.Invoke( ctx );
+	private void OnMovePerformed( InputAction.CallbackContext ctx )   => MovePerformed?.Invoke( ctx );
+	private void OnMoveCanceled( InputAction.CallbackContext ctx )    => MoveCanceled?.Invoke( ctx );
+	private void OnLookPerformed( InputAction.CallbackContext ctx )   => LookPerformed?.Invoke( ctx );
+	private void OnLookCanceled( InputAction.CallbackContext ctx )    => LookCanceled?.Invoke( ctx );
+	private void OnAimPerformed( InputAction.CallbackContext ctx )    => AimPerformed?.Invoke( ctx );
+	private void OnAimCanceled( InputAction.CallbackContext ctx )     => AimCanceled?.Invoke( ctx );
+	private void OnShootPerformed( InputAction.CallbackContext ctx )  => ShootPerformed?.Invoke();
+	private void OnShootCanceled( InputAction.CallbackContext ctx )   => ShootCanceled?.Invoke();
+	private void OnJumpPerformed( InputAction.CallbackContext ctx )   => JumpPerformed?.Invoke();
+	private void OnJumpCanceled( InputAction.CallbackContext ctx )    => JumpCanceled?.Invoke();
+	private void OnSprintPerformed( InputAction.CallbackContext ctx ) => SprintPerformed?.Invoke();
+	private void OnSprintCanceled( InputAction.CallbackContext ctx )  => SprintCanceled?.Invoke();
 
 	#endregion
-
-	/*private void Update()
-	{
-		Vector2 m = _moveAction.ReadValue<Vector2>();
-		Vector2 l = _lookAction.ReadValue<Vector2>();
-		Debug.Log($"Move: {m}, Look: {l}");
-	}*/
 }

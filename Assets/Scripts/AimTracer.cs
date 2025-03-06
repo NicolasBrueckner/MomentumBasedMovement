@@ -15,27 +15,32 @@ public class AimTracer : MonoBehaviour
 
 	private Transform _rayTarget;
 	private Vector3 _hitPoint;
+	private bool _isAiming;
 
 	private IAEventManager IA_EM => IAEventManager.Instance;
 
 	private void Start()
 	{
 		IA_EM.AimPerformed += OnAimPerformedReceived;
+		IA_EM.AimCanceled += OnAimCanceledReceived;
 	}
 
-	private void OnAimPerformedReceived( InputAction.CallbackContext ctx )
+	private void Update()
 	{
-		CheckForTarget();
+		if( _isAiming )
+			CheckForTarget();
 	}
+
+	private void OnAimPerformedReceived( InputAction.CallbackContext ctx ) => _isAiming = true;
+	private void OnAimCanceledReceived( InputAction.CallbackContext ctx )  => _isAiming = false;
 
 	private void CheckForTarget()
 	{
 		Vector3 rayDirection = rayOrigin.forward;
-		Debug.Log( rayDirection.normalized );
 
 		if( Physics.Raycast( rayOrigin.position, rayDirection, out RaycastHit hitInfo, rayMaxLength, rayLayerMask ) )
 		{
-			_hitPoint = hitInfo.point;
+			_hitPoint = hitInfo.point; //only for debugging
 			TargetHit?.Invoke( hitInfo );
 		}
 	}
