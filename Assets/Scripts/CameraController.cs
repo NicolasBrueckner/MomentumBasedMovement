@@ -1,5 +1,9 @@
+#region
+
 using UnityEngine;
 using UnityEngine.InputSystem;
+
+#endregion
 
 [ RequireComponent( typeof( Camera ) ) ]
 public class CameraController : MonoBehaviour
@@ -23,7 +27,7 @@ public class CameraController : MonoBehaviour
 		IA_EM.LookCanceled += OnLookCanceledReceived;
 	}
 
-	private void FixedUpdate()
+	private void LateUpdate()
 	{
 		RotateToDirection( _cachedLookInput );
 	}

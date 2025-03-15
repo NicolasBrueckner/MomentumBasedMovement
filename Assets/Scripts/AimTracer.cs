@@ -38,11 +38,11 @@ public class AimTracer : MonoBehaviour
 	{
 		Vector3 rayDirection = rayOrigin.forward;
 
-		if( Physics.Raycast( rayOrigin.position, rayDirection, out RaycastHit hitInfo, rayMaxLength, rayLayerMask ) )
-		{
-			_hitPoint = hitInfo.point; //only for debugging
-			TargetHit?.Invoke( hitInfo );
-		}
+		if( !Physics.Raycast( rayOrigin.position, rayDirection, out RaycastHit hitInfo, rayMaxLength, rayLayerMask ) )
+			return;
+
+		_hitPoint = hitInfo.point; //only for debugging
+		TargetHit?.Invoke( hitInfo );
 	}
 
 	private void OnDrawGizmos()

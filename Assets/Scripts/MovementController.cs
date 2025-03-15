@@ -2,6 +2,8 @@
 
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
 
 #endregion
 
@@ -29,9 +31,18 @@ public class MovementController : MonoBehaviour
 	private void FixedUpdate()
 	{
 		if( _cachedMoveInput != Vector2.zero )
+		{
 			MoveInDirection( _cachedMoveInput );
+		}
 		else
-			rb.velocity = Vector3.Lerp( rb.velocity, Vector3.zero, 0.3f );
+		{
+			float yVelocity = rb.velocity.y;
+			Vector3 hVelocity = new( rb.velocity.x, 0f, rb.velocity.z );
+			Vector3 newVelocity = Vector3.Lerp( hVelocity, Vector3.zero, 0.3f );
+
+			newVelocity.y = yVelocity;
+			rb.velocity = newVelocity;
+		}
 	}
 
 	private void BindAllEvents()
@@ -58,7 +69,6 @@ public class MovementController : MonoBehaviour
 
 	private void OnJumpPerformedReceived()
 	{
-		Debug.Log( $"Add Jump Force, {_isGrounded}" );
 		if( _isGrounded )
 			AddJumpForce();
 	}
@@ -76,6 +86,8 @@ public class MovementController : MonoBehaviour
 	private void MoveInDirection( Vector2 dir )
 	{
 		Vector3 movement = ( transform.right * dir.x + transform.forward * dir.y ) * _currentMoveSpeed;
+
+		movement.y = rb.velocity.y;
 		rb.velocity = movement;
 	}
 
