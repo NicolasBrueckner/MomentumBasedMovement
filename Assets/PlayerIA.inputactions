@@ -172,6 +172,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Debug",
+            "id": "a359cdfd-bbf9-4982-ba9e-f56eaf3b552f",
+            "actions": [
+                {
+                    "name": "AddVelocity",
+                    "type": "Button",
+                    "id": "57f3b14b-57a0-4e78-9e9f-5065a164f4d6",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "64e03729-aee5-4e8b-bf4f-fc056b5d50a7",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AddVelocity",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

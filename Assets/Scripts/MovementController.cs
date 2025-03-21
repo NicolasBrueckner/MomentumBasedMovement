@@ -36,12 +36,12 @@ public class MovementController : MonoBehaviour
 		}
 		else
 		{
-			float yVelocity = rb.velocity.y;
-			Vector3 hVelocity = new( rb.velocity.x, 0f, rb.velocity.z );
+			float yVelocity = rb.linearVelocity.y;
+			Vector3 hVelocity = new( rb.linearVelocity.x, 0f, rb.linearVelocity.z );
 			Vector3 newVelocity = Vector3.Lerp( hVelocity, Vector3.zero, 0.3f );
 
 			newVelocity.y = yVelocity;
-			rb.velocity = newVelocity;
+			rb.linearVelocity = newVelocity;
 		}
 	}
 
@@ -87,8 +87,8 @@ public class MovementController : MonoBehaviour
 	{
 		Vector3 movement = ( transform.right * dir.x + transform.forward * dir.y ) * _currentMoveSpeed;
 
-		movement.y = rb.velocity.y;
-		rb.velocity = movement;
+		movement.y = rb.linearVelocity.y;
+		rb.linearVelocity = movement;
 	}
 
 	private void AddJumpForce()

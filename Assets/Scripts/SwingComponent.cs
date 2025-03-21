@@ -18,7 +18,7 @@ public class SwingComponent : MonoBehaviour
 		float currentDistance = Vector3.Distance( swingAnchorTransform.position, transform.position );
 		if( currentDistance >= maxSwingLength )
 		{
-			_rb.velocity = ComputeNewVelocity( transform.position, _rb.velocity, swingAnchorTransform.position );
+			_rb.linearVelocity = ComputeNewVelocity( transform.position, _rb.linearVelocity, swingAnchorTransform.position );
 		}
 	}
 
