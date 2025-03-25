@@ -13,6 +13,7 @@ public class MovementController : MonoBehaviour
 	public float sprintFactor;
 	public float jumpForce;
 	public Rigidbody rb;
+	public Transform cameraTransform;
 	public ProximityChecker proximityChecker;
 
 	private Vector2 _cachedMoveInput;
@@ -85,8 +86,11 @@ public class MovementController : MonoBehaviour
 
 	private void MoveInDirection( Vector2 dir )
 	{
-		Vector3 movement = ( transform.right * dir.x + transform.forward * dir.y ) * _currentMoveSpeed;
+		Vector3 direction = cameraTransform.right * dir.x + cameraTransform.forward * dir.y;
+		direction.y = 0f;
+		direction.Normalize();
 
+		Vector3 movement = direction * _currentMoveSpeed;
 		movement.y = rb.linearVelocity.y;
 		rb.linearVelocity = movement;
 	}
