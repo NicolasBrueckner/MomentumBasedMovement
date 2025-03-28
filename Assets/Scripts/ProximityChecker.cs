@@ -1,79 +1,100 @@
 #region
 
-using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.Profiling;
 using UnityEngine;
+using static Utility;
 
 #endregion
 
 [ RequireComponent( typeof( SphereCollider ) ) ]
-public class ProximityChecker : MonoBehaviour
+public class ProximityChecker : MonoBehaviour, IUpdateObserver
 {
 	public LayerMask layerMask;
-	public float checkFrequency;
+	public HashSet<Collider> collidersInProximity = new();
 
-	public event Action<Collider> ProximityEntered;
-	public event Action ProximityExited;
-
-	private SphereCollider _self;
-	private Collider _current;
-
-	private void Awake()
-	{
-		_self = GetComponent<SphereCollider>();
-	}
+	public Collider Current{ get; private set; }
 
 	private void Start()
 	{
-		StartCoroutine( CheckProximity() );
+		UpdateManager.RegisterObserver( this );
 	}
 
-	private IEnumerator CheckProximity()
+	public void ObservedUpdate()
 	{
-		while( true )
+		using( new ProfilerMarker( "ObservedFixedUpdate in ProximityChecker" ).Auto() )
+			SetClosestCollider();
+	}
+
+	private void OnTriggerEnter( Collider other )
+	{
+		if( IsInLayerMask( other.gameObject, layerMask ) )
+			collidersInProximity.Add( other );
+	}
+
+	private void OnTriggerExit( Collider other )
+	{
+		if( IsInLayerMask( other.gameObject, layerMask ) )
+			collidersInProximity.Remove( other );
+	}
+
+	private void SetClosestCollider()
+	{
+		Debug.Log( $"possible colliders: {collidersInProximity.Count}" );
+		switch( collidersInProximity.Count )
 		{
-			Collider[] colliders = Physics.OverlapSphere( transform.position, _self.radius, layerMask );
-
-			switch( colliders.Length )
-			{
-				case > 1:
-					Collider other = GetClosestCollider( colliders );
-					if( other == _current )
-						break;
-					_current = other;
-					ProximityEntered?.Invoke( other );
+			case > 1:
+				Collider other = GetClosestCollider( collidersInProximity );
+				if( other == Current )
 					break;
-				case 1:
-					_current = colliders[ 0 ];
-					ProximityEntered?.Invoke( colliders[ 0 ] );
-					break;
-				case 0:
-					_current = null;
-					ProximityExited?.Invoke();
-					break;
-			}
-
-			yield return new WaitForSeconds( checkFrequency );
+				Current = other;
+				break;
+			case 1:
+				Current = collidersInProximity.First();
+				Debug.Log( $"one collider: {Current.gameObject.name}" );
+				break;
+			case 0:
+				Current = null;
+				break;
 		}
 	}
 
-	// expects a valid Collider array with size > 0
-	private Collider GetClosestCollider( Collider[] colliders )
+	private Collider GetClosestCollider( HashSet<Collider> colliders )
 	{
-		Collider closest = colliders[ 0 ];
+		if( colliders == null || colliders.Count == 0 )
+			return null;
+
+		Collider closest = null;
+		Vector3 position = transform.position;
 		float minDistanceSquared = float.MaxValue;
 
-		foreach( Collider other in colliders )
+		foreach( Collider col in colliders )
 		{
-			float distanceSquared = ( transform.position - other.transform.position ).sqrMagnitude;
+			Vector3 closestPoint = col.ClosestPoint( position );
+			float distanceSquared = ( closestPoint - position ).sqrMagnitude;
 
 			if( !( distanceSquared < minDistanceSquared ) )
 				continue;
 
-			closest = other;
 			minDistanceSquared = distanceSquared;
+			closest = col;
+
+			if( minDistanceSquared < float.Epsilon )
+				break;
 		}
 
 		return closest;
+	}
+
+
+	// don't use this method often as its quite expensive (also resets the colliders hashset)
+	private void ManualProximityCheck()
+	{
+		Collider[] colliders =
+			Physics.OverlapSphere( transform.position, GetComponent<SphereCollider>().radius, layerMask );
+		collidersInProximity = new HashSet<Collider>( colliders );
+
+		SetClosestCollider();
 	}
 }

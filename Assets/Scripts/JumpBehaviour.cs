@@ -1,5 +1,6 @@
 #region
 
+using Unity.Profiling;
 using UnityEngine;
 
 #endregion
@@ -14,10 +15,14 @@ public class JumpBehaviour : MonoBehaviour, IFixedUpdateObserver
 
 	public float fallMultiplier = 1f;
 	public float lowJumpMultiplier = 1f;
+	public ProximityChecker proximityChecker;
 
+	private Collider _cashedCollider;
 	private bool _isJumpButtonDown;
+	private Vector3 _jumpDirection;
 	private Vector3 _gravity;
 	private Rigidbody _rb;
+
 	private static InputEventManager InputManager => InputEventManager.Instance;
 
 	private void Awake()
@@ -36,7 +41,17 @@ public class JumpBehaviour : MonoBehaviour, IFixedUpdateObserver
 
 	public void ObservedFixedUpdate()
 	{
-		HandleJumpVelocity();
+		using( new ProfilerMarker( "ObservedFixedUpdate in JumpBehaviour" ).Auto() )
+		{
+			SetJumpDirection( proximityChecker.Current );
+			HandleJumpVelocity();
+		}
+	}
+
+	private void OnJumpPerformedReceived()
+	{
+		_isJumpButtonDown = true;
+		_rb.AddForce( _jumpDirection * jumpForce, ForceMode.Impulse );
 	}
 
 	private void HandleJumpVelocity()
@@ -52,10 +67,30 @@ public class JumpBehaviour : MonoBehaviour, IFixedUpdateObserver
 		}
 	}
 
-	private void OnJumpPerformedReceived()
+	private void SetJumpDirection( Collider other )
 	{
-		_isJumpButtonDown = true;
-		_rb.AddForce( Vector3.up * jumpForce, ForceMode.Impulse );
+		Debug.Log( !_cashedCollider
+			           ? "setting direction according to: null"
+			           : $"setting direction according to: {_cashedCollider.gameObject.name}" );
+
+		if( _cashedCollider == other )
+			return;
+
+		_cashedCollider = other;
+
+		if( !other )
+		{
+			_jumpDirection = Vector3.zero;
+			return;
+		}
+
+		Vector3 direction = other.transform.position - transform.position;
+
+		_jumpDirection = Physics.Raycast( transform.position, direction, out RaycastHit hit )
+			                 ? hit.normal
+			                 : Vector3.zero;
+
+		Debug.Log( $"resulting jump direction: {_jumpDirection}" );
 	}
 
 	private void OnJumpCanceledReceived() => _isJumpButtonDown = false;

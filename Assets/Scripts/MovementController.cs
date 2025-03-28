@@ -19,7 +19,6 @@ public class MovementController : MonoBehaviour, IFixedUpdateObserver
 	public float dampingFactor;
 
 	public Transform cameraTransform;
-	public ProximityChecker proximityChecker;
 
 	private Rigidbody _rb;
 	private Vector2 _cachedMoveInput;
@@ -97,14 +96,5 @@ public class MovementController : MonoBehaviour, IFixedUpdateObserver
 	private void UpdateMoveSpeed( float factor )
 	{
 		_currentMoveSpeed = baseMoveSpeed * factor;
-	}
-
-	private Vector3 GetSurfaceNormal( Collider other )
-	{
-		Vector3 direction = other.transform.position - transform.position;
-
-		return Physics.Raycast( transform.position, direction, out RaycastHit hit )
-			       ? hit.normal
-			       : Vector3.zero;
 	}
 }

@@ -1,6 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
+#region
+
 using UnityEngine;
+
+#endregion
 
 public static class Utility
 {
@@ -19,4 +21,7 @@ public static class Utility
 			Object.Destroy( gameObject );
 		return instance;
 	}
+
+	public static bool IsInLayerMask( GameObject gameObject, LayerMask layerMask ) =>
+		( layerMask.value & ( 1 << gameObject.layer ) ) != 0;
 }
