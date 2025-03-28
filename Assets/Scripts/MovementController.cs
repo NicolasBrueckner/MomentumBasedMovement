@@ -7,55 +7,51 @@ using Vector3 = UnityEngine.Vector3;
 
 #endregion
 
-public class MovementController : MonoBehaviour
+public class MovementController : MonoBehaviour, IFixedUpdateObserver
 {
+	[ Range( 0f, 50f ) ]
 	public float baseMoveSpeed;
+
+	[ Range( 1f, 5f ) ]
 	public float sprintFactor;
-	public float jumpForce;
-	public Rigidbody rb;
+
+	[ Range( 0f, 1f ) ]
+	public float dampingFactor;
+
 	public Transform cameraTransform;
 	public ProximityChecker proximityChecker;
 
+	private Rigidbody _rb;
 	private Vector2 _cachedMoveInput;
 	private float _currentMoveSpeed;
-	private bool _isGrounded;
-	private Vector3 _surfaceNormal;
-	private IAEventManager IA_EM => IAEventManager.Instance;
+
+	private static InputEventManager InputManager => InputEventManager.Instance;
+
+	private void Awake()
+	{
+		_rb = GetComponent<Rigidbody>();
+	}
 
 	private void Start()
 	{
 		BindAllEvents();
+		FixedUpdateManager.RegisterObserver( this );
 
 		UpdateMoveSpeed( 1f );
 	}
 
-	private void FixedUpdate()
+	public void ObservedFixedUpdate()
 	{
 		if( _cachedMoveInput != Vector2.zero )
-		{
 			MoveInDirection( _cachedMoveInput );
-		}
-		else
-		{
-			float yVelocity = rb.linearVelocity.y;
-			Vector3 hVelocity = new( rb.linearVelocity.x, 0f, rb.linearVelocity.z );
-			Vector3 newVelocity = Vector3.Lerp( hVelocity, Vector3.zero, 0.3f );
-
-			newVelocity.y = yVelocity;
-			rb.linearVelocity = newVelocity;
-		}
 	}
 
 	private void BindAllEvents()
 	{
-		proximityChecker.ProximityEntered += OnProximityEnteredReceived;
-		proximityChecker.ProximityExited += OnProximityExitedReceived;
-
-		IA_EM.MovePerformed += OnMovePerformedReceived;
-		IA_EM.MoveCanceled += OnMoveCanceledReceived;
-		IA_EM.JumpPerformed += OnJumpPerformedReceived;
-		IA_EM.SprintPerformed += OnSprintPerformedReceived;
-		IA_EM.SprintCanceled += OnSprintCanceledReceived;
+		InputManager.MovePerformed += OnMovePerformedReceived;
+		InputManager.MoveCanceled += OnMoveCanceledReceived;
+		InputManager.SprintPerformed += OnSprintPerformedReceived;
+		InputManager.SprintCanceled += OnSprintCanceledReceived;
 	}
 
 	private void OnMovePerformedReceived( InputAction.CallbackContext ctx )
@@ -66,12 +62,7 @@ public class MovementController : MonoBehaviour
 	private void OnMoveCanceledReceived( InputAction.CallbackContext ctx )
 	{
 		_cachedMoveInput = ctx.ReadValue<Vector2>();
-	}
-
-	private void OnJumpPerformedReceived()
-	{
-		if( _isGrounded )
-			AddJumpForce();
+		HandleStopping();
 	}
 
 	private void OnSprintPerformedReceived()
@@ -91,30 +82,21 @@ public class MovementController : MonoBehaviour
 		direction.Normalize();
 
 		Vector3 movement = direction * _currentMoveSpeed;
-		movement.y = rb.linearVelocity.y;
-		rb.linearVelocity = movement;
+		movement.y = _rb.linearVelocity.y;
+		_rb.linearVelocity = movement;
 	}
 
-	private void AddJumpForce()
+	private void HandleStopping()
 	{
-		rb.AddForce( _surfaceNormal * jumpForce, ForceMode.Impulse );
+		Vector3 stoppingVelocity = _rb.linearVelocity;
+		stoppingVelocity.y = 0f;
+
+		_rb.AddForce( -stoppingVelocity * .85f, ForceMode.VelocityChange );
 	}
 
 	private void UpdateMoveSpeed( float factor )
 	{
 		_currentMoveSpeed = baseMoveSpeed * factor;
-	}
-
-	private void OnProximityEnteredReceived( Collider other )
-	{
-		_isGrounded = true;
-		_surfaceNormal = GetSurfaceNormal( other );
-	}
-
-	private void OnProximityExitedReceived()
-	{
-		_isGrounded = false;
-		_surfaceNormal = Vector3.zero;
 	}
 
 	private Vector3 GetSurfaceNormal( Collider other )

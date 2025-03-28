@@ -10,7 +10,7 @@ public class Slingshot : MonoBehaviour
 {
 	private ConfigurableJoint _joint;
 
-	private IAEventManager IA_EM => IAEventManager.Instance;
+	private InputEventManager InputEm => InputEventManager.Instance;
 	private AimTracer _aimTracer;
 	private Rigidbody _targetBody;
 
@@ -23,7 +23,7 @@ public class Slingshot : MonoBehaviour
 	private void Start()
 	{
 		_aimTracer.TargetHit += UpdateTarget;
-		IA_EM.ShootPerformed += AttachSlingshot;
+		InputEm.ShootPerformed += AttachSlingshot;
 	}
 
 	private void UpdateTarget( RaycastHit hit ) => _targetBody = hit.collider.attachedRigidbody;

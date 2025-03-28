@@ -17,12 +17,12 @@ public class AimTracer : MonoBehaviour
 	private Vector3 _hitPoint;
 	private bool _isAiming;
 
-	private IAEventManager IA_EM => IAEventManager.Instance;
+	private static InputEventManager InputManager => InputEventManager.Instance;
 
 	private void Start()
 	{
-		IA_EM.AimPerformed += OnAimPerformedReceived;
-		IA_EM.AimCanceled += OnAimCanceledReceived;
+		InputManager.AimPerformed += OnAimPerformedReceived;
+		InputManager.AimCanceled += OnAimCanceledReceived;
 	}
 
 	private void Update()
