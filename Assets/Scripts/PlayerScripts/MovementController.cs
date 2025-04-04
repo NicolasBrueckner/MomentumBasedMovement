@@ -23,6 +23,7 @@ public class MovementController : MonoBehaviour, IFixedUpdateObserver
 	private Rigidbody _rb;
 	private Vector2 _cachedMoveInput;
 	private float _currentMoveSpeed;
+	private bool _wasMoving;
 
 	private static InputEventManager InputManager => InputEventManager.Instance;
 
@@ -42,7 +43,15 @@ public class MovementController : MonoBehaviour, IFixedUpdateObserver
 	public void ObservedFixedUpdate()
 	{
 		if( _cachedMoveInput != Vector2.zero )
+		{
 			MoveInDirection( _cachedMoveInput );
+			_wasMoving = true;
+		}
+		else if( _wasMoving )
+		{
+			HandleStopping();
+			_wasMoving = false;
+		}
 	}
 
 	private void BindAllEvents()
@@ -53,16 +62,11 @@ public class MovementController : MonoBehaviour, IFixedUpdateObserver
 		InputManager.SprintCanceled += OnSprintCanceledReceived;
 	}
 
-	private void OnMovePerformedReceived( InputAction.CallbackContext ctx )
-	{
+	private void OnMovePerformedReceived( InputAction.CallbackContext ctx ) =>
 		_cachedMoveInput = ctx.ReadValue<Vector2>();
-	}
 
-	private void OnMoveCanceledReceived( InputAction.CallbackContext ctx )
-	{
+	private void OnMoveCanceledReceived( InputAction.CallbackContext ctx ) =>
 		_cachedMoveInput = ctx.ReadValue<Vector2>();
-		HandleStopping();
-	}
 
 	private void OnSprintPerformedReceived()
 	{
