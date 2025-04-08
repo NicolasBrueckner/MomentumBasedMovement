@@ -14,12 +14,12 @@ public class JumpBehaviour : MonoBehaviour, IFixedUpdateObserver
 
 	public float fallMultiplier = 1f;
 	public float lowJumpMultiplier = 1f;
-	public GroundCheck groundCheck;
+	public ProximityChecker proximityChecker;
 
-	private bool IsGrounded => groundCheck.IsGrounded;
+	private ProximityState State => proximityChecker.CurrentState;
 	private Collider _cashedCollider;
 	private bool _isJumpButtonDown;
-	private Vector3 _jumpDirection = Vector3.up;
+	private readonly Vector3 _jumpDirection = Vector3.up;
 	private Vector3 _gravity;
 	private Rigidbody _rb;
 
@@ -47,7 +47,7 @@ public class JumpBehaviour : MonoBehaviour, IFixedUpdateObserver
 	private void OnJumpPerformedReceived()
 	{
 		_isJumpButtonDown = true;
-		if( IsGrounded )
+		if( State == ProximityState.OnGround )
 			_rb.AddForce( _jumpDirection * jumpForce, ForceMode.Impulse );
 	}
 
@@ -62,26 +62,6 @@ public class JumpBehaviour : MonoBehaviour, IFixedUpdateObserver
 				_rb.AddForce( _gravity * ( lowJumpMultiplier - 1 ), ForceMode.Force );
 				break;
 		}
-	}
-
-	private void SetJumpDirection( Collider other )
-	{
-		if( _cashedCollider == other )
-			return;
-
-		_cashedCollider = other;
-
-		if( !other )
-		{
-			_jumpDirection = Vector3.zero;
-			return;
-		}
-
-		Vector3 direction = other.transform.position - transform.position;
-
-		_jumpDirection = Physics.Raycast( transform.position, direction, out RaycastHit hit )
-			                 ? hit.normal
-			                 : Vector3.zero;
 	}
 
 	private void OnJumpCanceledReceived() => _isJumpButtonDown = false;
