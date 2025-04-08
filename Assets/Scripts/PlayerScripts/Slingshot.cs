@@ -10,7 +10,7 @@ public class Slingshot : MonoBehaviour
 {
 	private ConfigurableJoint _joint;
 
-	private InputEventManager InputEm => InputEventManager.Instance;
+	private static InputEventManager InputEm => InputEventManager.Instance;
 	private AimTracer _aimTracer;
 	private Rigidbody _targetBody;
 

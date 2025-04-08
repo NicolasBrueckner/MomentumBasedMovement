@@ -43,12 +43,9 @@ public class ProximityChecker : MonoBehaviour, IUpdateObserver
 	{
 		Vector3 groundColliderCenter = groundCollider.transform.TransformPoint( groundCollider.center );
 		Vector3 wallColliderCenter = wallCollider.transform.TransformPoint( wallCollider.center );
-
-
 		_isOnGround = IsInProximity( groundColliderCenter, _halfSizeGround, groundLayers );
 		_isOnWall = IsInProximity( wallColliderCenter, _halfSizeWall, wallLayers );
 
-		Debug.Log( $"OnGround: {_isOnGround}, OnWall: {_isOnWall}" );
 		switch( _isOnGround )
 		{
 			case false when !_isOnWall:
@@ -68,12 +65,4 @@ public class ProximityChecker : MonoBehaviour, IUpdateObserver
 
 	private static bool IsInProximity( Vector3 center, Vector3 halfExtents, LayerMask mask ) =>
 		Physics.CheckBox( center, halfExtents, Identity, mask );
-
-	private void OnDrawGizmos()
-	{
-		Gizmos.color = Color.red;
-
-		Vector3 groundColliderCenter = groundCollider.transform.TransformPoint( groundCollider.center );
-		Gizmos.DrawWireCube( groundColliderCenter, _halfSizeGround * 2.0f );
-	}
 }
