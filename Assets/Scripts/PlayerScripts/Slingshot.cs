@@ -1,36 +1,85 @@
 #region
 
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 #endregion
 
-[ RequireComponent( typeof( ConfigurableJoint ) ) ]
-[ RequireComponent( typeof( AimTracer ) ) ]
-public class Slingshot : MonoBehaviour
+public class Slingshot : MonoBehaviour, IFixedUpdateObserver
 {
-	private ConfigurableJoint _joint;
+	public ConfigurableJoint joint;
+	public float rayMaxLength;
+	public LayerMask rayLayerMask;
+	public Transform cameraTransform;
 
 	private static InputEventManager InputEm => InputEventManager.Instance;
-	private AimTracer _aimTracer;
-	private Rigidbody _targetBody;
 
-	private void Awake()
-	{
-		_joint = GetComponent<ConfigurableJoint>();
-		_aimTracer = GetComponent<AimTracer>();
-	}
+	private RaycastHit _hit;
+	private bool _isHitting;
+	private bool _isAiming;
+
+	private static InputEventManager InputManager => InputEventManager.Instance;
 
 	private void Start()
 	{
-		_aimTracer.TargetHit += UpdateTarget;
-		InputEm.ShootPerformed += AttachSlingshot;
+		InputManager.AimPerformed += OnAimPerformedReceived;
+		InputManager.AimCanceled += OnAimCanceledReceived;
+		InputManager.ShootPerformed += OnShootPerformedReceived;
+		InputManager.ShootCanceled += OnShootCanceledReceived;
+
+		FixedUpdateManager.RegisterObserver( this );
 	}
 
-	private void UpdateTarget( RaycastHit hit ) => _targetBody = hit.collider.attachedRigidbody;
+	public void ObservedFixedUpdate()
+	{
+		if( _isAiming )
+			CheckForTarget();
+		else
+			_isHitting = false;
+	}
+
+	private void OnAimPerformedReceived( InputAction.CallbackContext ctx ) => _isAiming = true;
+	private void OnAimCanceledReceived( InputAction.CallbackContext ctx )  => _isAiming = false;
+
+	private void OnShootPerformedReceived()
+	{
+		if( _isHitting )
+			AttachSlingshot();
+	}
+
+	private void OnShootCanceledReceived()
+	{
+		DetachSlingshot();
+	}
 
 	private void AttachSlingshot()
 	{
-		if( _targetBody )
-			_joint.connectedBody = _targetBody;
+		Debug.Log( "hitting" );
+
+		joint.anchor = transform.InverseTransformPoint( _hit.point );
+
+		joint.xMotion = ConfigurableJointMotion.Limited;
+		joint.yMotion = ConfigurableJointMotion.Limited;
+		joint.zMotion = ConfigurableJointMotion.Limited;
+	}
+
+	private void DetachSlingshot()
+	{
+		/*Debug.Log( "detaching" );
+
+		joint.connectedAnchor = Vector3.zero;
+		joint.xMotion = ConfigurableJointMotion.Free;
+		joint.yMotion = ConfigurableJointMotion.Free;
+		joint.zMotion = ConfigurableJointMotion.Free;*/
+	}
+
+	private void CheckForTarget()
+	{
+		Vector3 rayDirection = cameraTransform.forward;
+
+		_isHitting = Physics.Raycast( cameraTransform.position, rayDirection, out _hit, rayMaxLength, rayLayerMask );
+
+		if( _isHitting )
+			Debug.Log( $"hitting: {_hit.point}" );
 	}
 }
