@@ -1,0 +1,5 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:VisualElement name="Background" style="flex-grow: 1;">
+        <engine:VisualElement name="Crosshair" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Materials/Textures/focus.png?fileID=2800000&amp;guid=87a88b3678bccbc49b7b0b7cf1569614&amp;type=3#focus&quot;); -unity-background-scale-mode: scale-to-fit; -unity-background-image-tint-color: rgba(255, 255, 255, 0.47); background-size: 3% 5.3333%;" />
+    </engine:VisualElement>
+</engine:UXML>
