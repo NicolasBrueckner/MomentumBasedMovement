@@ -18,7 +18,7 @@ public class ProximityChecker : MonoBehaviour, IUpdateObserver
 	public LayerMask groundLayers;
 	public LayerMask wallLayers;
 
-	public ProximityState CurrentState{ get; private set; }
+	public static ProximityState CurrentState{ get; private set; }
 
 	private bool _isOnGround;
 	private bool _isOnWall;

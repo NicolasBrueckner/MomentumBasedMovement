@@ -49,7 +49,7 @@ public class MovementController : MonoBehaviour, IFixedUpdateObserver
 		}
 		else if( _wasMoving )
 		{
-			HandleStopping();
+			//HandleStopping();
 			_wasMoving = false;
 		}
 	}
@@ -89,13 +89,13 @@ public class MovementController : MonoBehaviour, IFixedUpdateObserver
 		_rb.linearVelocity = movement;
 	}
 
-	private void HandleStopping()
+	/*private void HandleStopping()
 	{
 		Vector3 stoppingVelocity = _rb.linearVelocity;
 		stoppingVelocity.y = 0f;
 
 		_rb.AddForce( -stoppingVelocity * .85f, ForceMode.VelocityChange );
-	}
+	}*/
 
 	private void UpdateMoveSpeed( float factor )
 	{
