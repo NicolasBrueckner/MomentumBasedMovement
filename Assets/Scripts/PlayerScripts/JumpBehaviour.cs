@@ -15,7 +15,6 @@ public class JumpBehaviour : MonoBehaviour, IFixedUpdateObserver
 	public float fallMultiplier = 1f;
 	public float lowJumpMultiplier = 1f;
 
-	private readonly ProximityState _state = ProximityChecker.CurrentState;
 	private readonly Vector3 _jumpDirection = Vector3.up;
 	private Collider _cashedCollider;
 	private bool _isJumpButtonDown;
@@ -46,7 +45,7 @@ public class JumpBehaviour : MonoBehaviour, IFixedUpdateObserver
 	private void OnJumpPerformedReceived()
 	{
 		_isJumpButtonDown = true;
-		if( _state == ProximityState.OnGround )
+		if( ProximityStateMachine.CurrentProximityState == ProximityState.OnGround )
 			_rb.AddForce( _jumpDirection * jumpForce, ForceMode.Impulse );
 	}
 

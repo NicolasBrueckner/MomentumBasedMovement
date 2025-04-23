@@ -7,16 +7,13 @@ using Vector3 = UnityEngine.Vector3;
 
 #endregion
 
-public class MovementController : MonoBehaviour, IFixedUpdateObserver
+public class MovementBehaviour : MonoBehaviour, IFixedUpdateObserver
 {
 	[ Range( 0f, 50f ) ]
 	public float baseMoveSpeed;
 
 	[ Range( 1f, 5f ) ]
 	public float sprintFactor;
-
-	[ Range( 0f, 1f ) ]
-	public float dampingFactor;
 
 	public Transform cameraTransform;
 
@@ -49,7 +46,6 @@ public class MovementController : MonoBehaviour, IFixedUpdateObserver
 		}
 		else if( _wasMoving )
 		{
-			//HandleStopping();
 			_wasMoving = false;
 		}
 	}
@@ -88,14 +84,6 @@ public class MovementController : MonoBehaviour, IFixedUpdateObserver
 		movement.y = _rb.linearVelocity.y;
 		_rb.linearVelocity = movement;
 	}
-
-	/*private void HandleStopping()
-	{
-		Vector3 stoppingVelocity = _rb.linearVelocity;
-		stoppingVelocity.y = 0f;
-
-		_rb.AddForce( -stoppingVelocity * .85f, ForceMode.VelocityChange );
-	}*/
 
 	private void UpdateMoveSpeed( float factor )
 	{
