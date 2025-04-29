@@ -76,9 +76,9 @@ public class MovementBehaviour : MonoBehaviour, IFixedUpdateObserver
 
 	private void MoveInDirection( Vector2 dir )
 	{
-		Vector3 direction = cameraTransform.right * dir.x + cameraTransform.forward * dir.y;
-		direction.y = 0f;
-		direction.Normalize();
+		Vector3 direction =
+			Vector3.ProjectOnPlane( cameraTransform.right * dir.x + cameraTransform.forward * dir.y,
+				Vector3.up ).normalized;
 
 		Vector3 movement = direction * _currentMoveSpeed;
 		movement.y = _rb.linearVelocity.y;
