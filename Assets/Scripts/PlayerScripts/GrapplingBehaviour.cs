@@ -25,7 +25,6 @@ public class GrapplingBehaviour : MonoBehaviour, IFixedUpdateObserver
 		InputManager.GrapplePerformed += OnGrapplePerformedReceived;
 		InputManager.GrappleCanceled += OnGrappleCanceledReceived;
 		InputManager.PullPerformed += OnPullPerformedReceived;
-		InputManager.PullCanceled += OnPullCanceledReceived;
 
 		FixedUpdateManager.RegisterObserver( this );
 
@@ -71,8 +70,6 @@ public class GrapplingBehaviour : MonoBehaviour, IFixedUpdateObserver
 		ChangeGrapplingState( GrapplingState.Pull );
 	}
 
-	private static void OnPullCanceledReceived() => ChangeGrapplingState( GrapplingState.None );
-
 	private void HandleGrappling()
 	{
 		Vector3 currentVelocity = rb.linearVelocity;
@@ -86,15 +83,21 @@ public class GrapplingBehaviour : MonoBehaviour, IFixedUpdateObserver
 		float distance = math.distance( transform.position, _currentHit.point );
 
 		if( distance <= 1 )
+		{
+			rb.linearVelocity = Vector3.zero;
+			ChangeGrapplingState( GrapplingState.None );
 			return;
-		
-		const float pullMaxSpd = 100;
-		const float pullMinSpd = 20;
-		
+		}
+
+		const float pullMaxSpd = 80;
+		const float pullMinSpd = 10;
+
 		float t = math.saturate( distance / 10 );
-		float speed=math.lerp(pullMinSpd, pullMaxSpd, t  );
+		t = Utility.EaseOutQuad( t );
+		Debug.Log( $"t: {t}" );
+		float speed = math.lerp( pullMinSpd, pullMaxSpd, t );
 		float3 direction = math.normalize( _currentHit.point - transform.position );
-		
+
 		rb.linearVelocity = direction * speed;
 	}
 

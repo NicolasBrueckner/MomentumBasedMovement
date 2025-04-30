@@ -3959,11 +3959,11 @@ MeshCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 648365235}
 --- !u!33 &818310416
@@ -4275,6 +4275,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &924336062 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1115844084053234112, guid: 4c4c4822045b7394a9b06fc8416b28a5,
+    type: 3}
+  m_PrefabInstance: {fileID: 5367169809157498280}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &924336070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 924336062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62442368846d31145a21e39130decda9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerRb: {fileID: 1465929810}
 --- !u!43 &946341304
 Mesh:
   m_ObjectHideFlags: 0
@@ -8555,7 +8574,7 @@ PrefabInstance:
     - target: {fileID: 7832848639143866869, guid: 424a2087776008546ae812983dd79861,
         type: 3}
       propertyPath: rayMaxLength
-      value: 100
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 7832848639143866869, guid: 424a2087776008546ae812983dd79861,
         type: 3}
@@ -11392,7 +11411,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1115844084053234112, guid: 4c4c4822045b7394a9b06fc8416b28a5,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 924336070}
   m_SourcePrefab: {fileID: 100100000, guid: 4c4c4822045b7394a9b06fc8416b28a5, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

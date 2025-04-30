@@ -6,9 +6,6 @@ using UnityEngine;
 
 public class JumpBehaviour : MonoBehaviour, IFixedUpdateObserver
 {
-	[ DebugGUIGraph( autoScale: true, r: 1f ) ]
-	private float Height => transform.position.y;
-
 	[ Range( 0f, 50f ) ]
 	public float jumpForce;
 

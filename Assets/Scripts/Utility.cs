@@ -24,4 +24,6 @@ public static class Utility
 
 	public static bool IsInLayerMask( GameObject gameObject, LayerMask layerMask ) =>
 		( layerMask.value & ( 1 << gameObject.layer ) ) != 0;
+
+	public static float EaseOutQuad( float x ) => 1f - ( 1f - x ) * ( 1f - x );
 }
