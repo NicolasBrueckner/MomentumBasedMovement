@@ -45,7 +45,7 @@ public class JumpBehaviour : MonoBehaviour, IFixedUpdateObserver
 	private void OnJumpPerformedReceived()
 	{
 		_isJumpButtonDown = true;
-		if( ProximityStateMachine.CurrentProximityState == ProximityState.OnGround )
+		if( ProximityStateMachine.CurrentProximityState == ProximityState.Ground )
 			_rb.AddForce( _jumpDirection * jumpForce, ForceMode.Impulse );
 	}
 

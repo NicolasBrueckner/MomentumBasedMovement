@@ -49,15 +49,15 @@ public class ProximityChecker : MonoBehaviour, IUpdateObserver
 		switch( _isOnGround )
 		{
 			case false when !_isOnWall:
-				ProximityStateMachine.ChangeProximityState( ProximityState.InAir );
+				ProximityStateMachine.ChangeProximityState( ProximityState.None );
 				break;
 			case true:
-				ProximityStateMachine.ChangeProximityState( ProximityState.OnGround );
+				ProximityStateMachine.ChangeProximityState( ProximityState.Ground );
 				break;
 			default:
 			{
 				if( _isOnWall )
-					ProximityStateMachine.ChangeProximityState( ProximityState.OnWall );
+					ProximityStateMachine.ChangeProximityState( ProximityState.Wall );
 				break;
 			}
 		}

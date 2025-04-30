@@ -39,9 +39,12 @@ public class MovementBehaviour : MonoBehaviour, IFixedUpdateObserver
 
 	public void ObservedFixedUpdate()
 	{
+		if( GrapplingStateMachine.CurrentGrapplingState != GrapplingState.None )
+			return;
+
 		if( _cachedMoveInput != Vector2.zero )
 		{
-			MoveInDirection( _cachedMoveInput );
+			HandleBasicMovement( _cachedMoveInput );
 			_wasMoving = true;
 		}
 		else if( _wasMoving )
@@ -74,7 +77,7 @@ public class MovementBehaviour : MonoBehaviour, IFixedUpdateObserver
 		UpdateMoveSpeed( 1f );
 	}
 
-	private void MoveInDirection( Vector2 dir )
+	private void HandleBasicMovement( Vector2 dir )
 	{
 		Vector3 direction =
 			Vector3.ProjectOnPlane( cameraTransform.right * dir.x + cameraTransform.forward * dir.y,

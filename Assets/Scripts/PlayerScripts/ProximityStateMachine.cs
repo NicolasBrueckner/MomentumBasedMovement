@@ -8,20 +8,20 @@ using PS = ProximityState;
 
 public enum ProximityState
 {
-	InAir = 0,
-	OnGround,
-	OnWall,
+	None = 0,
+	Ground,
+	Wall,
 }
 
 public static class ProximityStateMachine
 {
-	public static PS CurrentProximityState{ get; private set; } = PS.InAir;
+	public static PS CurrentProximityState{ get; private set; } = PS.None;
 
 	private static readonly Dictionary<PS, PS[]> Allowed = new()
 	{
-		{ PS.InAir, new[] { PS.OnGround, PS.OnWall } },
-		{ PS.OnGround, new[] { PS.InAir, PS.OnWall } },
-		{ PS.OnWall, new[] { PS.InAir, PS.OnGround } },
+		{ PS.None, new[] { PS.Ground, PS.Wall } },
+		{ PS.Ground, new[] { PS.None, PS.Wall } },
+		{ PS.Wall, new[] { PS.None, PS.Ground } },
 	};
 
 	/*

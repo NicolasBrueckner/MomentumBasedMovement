@@ -1,7 +1,8 @@
 #region
 
+using System;
+using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using static GrapplingStateMachine;
 
 #endregion
@@ -15,85 +16,95 @@ public class GrapplingBehaviour : MonoBehaviour, IFixedUpdateObserver
 	public Rigidbody rb;
 	public LineRenderer rope;
 
-	private RaycastHit _hit;
-
+	private RaycastHit _currentHit;
+	private RayChecker _rayCheck;
 	private static InputEventManager InputManager => InputEventManager.Instance;
 
 	private void Start()
 	{
-		InputManager.AimPerformed += OnAimPerformedReceived;
-		InputManager.AimCanceled += OnAimCanceledReceived;
-		InputManager.ShootPerformed += OnShootPerformedReceived;
-		InputManager.ShootCanceled += OnShootCanceledReceived;
+		InputManager.GrapplePerformed += OnGrapplePerformedReceived;
+		InputManager.GrappleCanceled += OnGrappleCanceledReceived;
+		InputManager.PullPerformed += OnPullPerformedReceived;
+		InputManager.PullCanceled += OnPullCanceledReceived;
 
 		FixedUpdateManager.RegisterObserver( this );
+
+		_rayCheck = new( camTransform, rayLayerMask, rayMaxLength, true );
 	}
 
 	public void ObservedFixedUpdate()
 	{
-		CheckIfHitting();
-		HandleGrappling();
+		switch( CurrentGrapplingState )
+		{
+			case GrapplingState.None:
+				break;
+			case GrapplingState.Grapple:
+				HandleGrappling();
+				break;
+			case GrapplingState.Pull:
+				HandlePulling();
+				break;
+			default:
+				throw new ArgumentOutOfRangeException();
+		}
+
 		DrawGrapplingLine();
 	}
 
-	private static void OnAimPerformedReceived( InputAction.CallbackContext ctx )
+	private void OnGrapplePerformedReceived()
 	{
-		if( CurrentGrapplingState != GrapplingState.None )
+		if( !_rayCheck.IsHitting )
 			return;
 
-		ChangeGrapplingState( GrapplingState.Aiming );
+		_currentHit = _rayCheck.Hit;
+		ChangeGrapplingState( GrapplingState.Grapple );
 	}
 
-	private static void OnAimCanceledReceived( InputAction.CallbackContext ctx ) =>
-		ChangeGrapplingState( GrapplingState.None );
+	private static void OnGrappleCanceledReceived() => ChangeGrapplingState( GrapplingState.None );
 
-	private static void OnShootPerformedReceived()
+	private void OnPullPerformedReceived()
 	{
-		if( CurrentGrapplingState != GrapplingState.Hitting )
+		if( !_rayCheck.IsHitting )
 			return;
 
-		ChangeGrapplingState( GrapplingState.Grappling );
+		_currentHit = _rayCheck.Hit;
+		ChangeGrapplingState( GrapplingState.Pull );
 	}
 
-	private static void OnShootCanceledReceived()
-	{
-		if( CurrentGrapplingState != GrapplingState.Grappling )
-			return;
-
-		ChangeGrapplingState( GrapplingState.Aiming );
-	}
-
-	private bool CheckIfHitting()
-	{
-		if( CurrentGrapplingState != GrapplingState.Aiming )
-			return false;
-
-		if( !Physics.Raycast( camTransform.position, camTransform.forward, out _hit, rayMaxLength, rayLayerMask ) )
-			return false;
-
-		ChangeGrapplingState( GrapplingState.Hitting );
-		return true;
-	}
+	private static void OnPullCanceledReceived() => ChangeGrapplingState( GrapplingState.None );
 
 	private void HandleGrappling()
 	{
-		if( CurrentGrapplingState != GrapplingState.Grappling )
-			return;
-
 		Vector3 currentVelocity = rb.linearVelocity;
-		Vector3 ropeDirection = ( _hit.point - transform.position ).normalized;
+		Vector3 ropeDirection = ( _currentHit.point - transform.position ).normalized;
 
 		rb.linearVelocity = Vector3.ProjectOnPlane( currentVelocity, ropeDirection ) * 0.9995f;
 	}
 
+	private void HandlePulling()
+	{
+		float distance = math.distance( transform.position, _currentHit.point );
+
+		if( distance <= 1 )
+			return;
+		
+		const float pullMaxSpd = 100;
+		const float pullMinSpd = 20;
+		
+		float t = math.saturate( distance / 10 );
+		float speed=math.lerp(pullMinSpd, pullMaxSpd, t  );
+		float3 direction = math.normalize( _currentHit.point - transform.position );
+		
+		rb.linearVelocity = direction * speed;
+	}
 
 	private void DrawGrapplingLine()
 	{
-		if( CurrentGrapplingState == GrapplingState.Grappling )
+		if( _rayCheck.IsHitting )
 		{
 			rope.enabled = true;
 			rope.SetPosition( 0, transform.position );
-			rope.SetPosition( 1, _hit.point );
+			rope.SetPosition( 1, _currentHit.point );
 		}
 		else
 		{

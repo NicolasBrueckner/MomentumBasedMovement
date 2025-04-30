@@ -9,9 +9,8 @@ using GS = GrapplingState;
 public enum GrapplingState
 {
 	None = 0,
-	Aiming,
-	Hitting,
-	Grappling,
+	Grapple,
+	Pull,
 }
 
 public static class GrapplingStateMachine
@@ -20,10 +19,9 @@ public static class GrapplingStateMachine
 
 	private static readonly Dictionary<GS, GS[]> Allowed = new()
 	{
-		{ GS.None, new[] { GS.Aiming } },
-		{ GS.Aiming, new[] { GS.Hitting, GS.None } },
-		{ GS.Hitting, new[] { GS.Grappling, GS.None } },
-		{ GS.Grappling, new[] { GS.Aiming, GS.None } },
+		{ GS.None, new[] { GS.Grapple, GS.Pull } },
+		{ GS.Grapple, new[] { GS.None } },
+		{ GS.Pull, new[] { GS.None } },
 	};
 
 	/*
@@ -34,7 +32,15 @@ public static class GrapplingStateMachine
 
 	public static void ChangeGrapplingState( GS newState )
 	{
-		if( CurrentGrapplingState != newState && Allowed[ CurrentGrapplingState ].Contains( newState ) )
+		if( CurrentGrapplingState == newState )
+			return;
+
+		if( Allowed[ CurrentGrapplingState ].Contains( newState ) )
+		{
 			CurrentGrapplingState = newState;
+			return;
+		}
+
+		CurrentGrapplingState = GS.None;
 	}
 }
